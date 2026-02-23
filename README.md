@@ -83,14 +83,3 @@ Follow these steps to set up the project locally.
 
 ---
 
-## 📞 Contact
-
-Have questions or need support? Reach out to us!
-
-- **Email:** karnacoder22@gmail.com
-- **Phone:** +91 6362245678
-- **Address:** 3rd Floor, Techspire Towers 42 MG Road Indiranagar Bangalore, Karnataka 560038 India
-
----
-
-*Built with ❤️ by the HealOps Team.*
