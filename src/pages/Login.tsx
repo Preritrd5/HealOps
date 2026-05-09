@@ -37,7 +37,7 @@ const Login = () => {
 
             toast.success("Logged in successfully!");
             navigate("/");
-        } catch (error: any) {
+        } catch (error) {
             // Redundant catch if we handle 'error' return above, but safe
             console.error("Login Error:", error);
         } finally {

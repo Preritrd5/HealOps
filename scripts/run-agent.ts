@@ -73,7 +73,9 @@ const main = async () => {
         try {
             await fs.access(targetDir);
             await fs.rm(targetDir, { recursive: true, force: true });
-        } catch { }
+        } catch {
+            // Ignore error if directory doesn't exist
+        }
 
         await fs.mkdir(targetDir, { recursive: true });
 

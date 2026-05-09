@@ -4,7 +4,7 @@ export const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// @ts-ignore: Deno is available in Supabase Edge Functions environment
+// @ts-expect-error: Deno is available in Supabase Edge Functions environment
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -23,7 +23,7 @@ Deno.serve(async (req: Request) => {
     const repoName = repo.replace(/\.git$/, "");
 
     // Fetch repo tree (try main, then master)
-    let tree: any[] = [];
+    let tree: { type?: string; path?: string }[] = [];
     for (const branch of ["main", "master"]) {
       const treeRes = await fetch(
         `https://api.github.com/repos/${owner}/${repoName}/git/trees/${branch}?recursive=1`,
@@ -45,9 +45,9 @@ Deno.serve(async (req: Request) => {
 
     // Filter to relevant source files
     const sourceFiles = tree
-      .filter((f: any) => f.type === "blob")
-      .filter((f: any) => {
-        const p = f.path.toLowerCase();
+      .filter((f: { type?: string; path?: string }) => f.type === "blob")
+      .filter((f: { type?: string; path?: string }) => {
+        const p = f.path?.toLowerCase() || "";
         return (
           p.endsWith(".ts") ||
           p.endsWith(".tsx") ||
@@ -58,7 +58,7 @@ Deno.serve(async (req: Request) => {
           p.endsWith(".css")
         );
       })
-      .filter((f: any) => !f.path.includes("node_modules") && !f.path.includes(".lock"))
+      .filter((f: { type?: string; path?: string }) => !f.path?.includes("node_modules") && !f.path?.includes(".lock"))
       .slice(0, 15);
 
     // Fetch file contents (up to 10 key files)
@@ -80,8 +80,8 @@ Deno.serve(async (req: Request) => {
     }
 
     const allPaths = tree
-      .filter((f: any) => f.type === "blob")
-      .map((f: any) => f.path)
+      .filter((f: { type?: string; path?: string }) => f.type === "blob")
+      .map((f: { type?: string; path?: string }) => f.path)
       .slice(0, 100);
 
     // Build LLM prompt
@@ -111,7 +111,7 @@ ${fileContents.map((f) => `--- ${f.path} ---\n${f.content}`).join("\n\n")}
 
 Analyze this repository and find all issues using the analyze_repository tool.`;
 
-    // @ts-ignore: Deno is available in Supabase Edge Functions environment
+    // @ts-expect-error: Deno is available in Supabase Edge Functions environment
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       return new Response(JSON.stringify({ error: "LOVABLE_API_KEY not configured" }), {
@@ -234,7 +234,7 @@ Analyze this repository and find all issues using the analyze_repository tool.`;
 
     // Ensure commit messages have [AI-AGENT] prefix
     if (analysis.fixes) {
-      analysis.fixes = analysis.fixes.map((f: any) => ({
+      analysis.fixes = analysis.fixes.map((f: { commitMessage: string; [key: string]: unknown }) => ({
         ...f,
         commitMessage: f.commitMessage.startsWith("[AI-AGENT]")
           ? f.commitMessage

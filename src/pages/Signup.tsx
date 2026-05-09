@@ -44,7 +44,7 @@ const Signup = () => {
 
             toast.success("Account created! Please CHECK YOUR EMAIL to verify your account before logging in.");
             navigate("/login");
-        } catch (error: any) {
+        } catch (error) {
             console.error("Signup error:", error);
         } finally {
             setLoading(false);

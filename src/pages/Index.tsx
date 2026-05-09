@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import HeroLanding from "@/components/HeroLanding";
@@ -25,6 +25,7 @@ import { Download, FileText, Play, ArrowLeft, FileJson, Loader2, Code2, GitBranc
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import Footer from "@/components/Footer";
+import { useLocation } from "react-router-dom";
 
 const DEMO_REPO = "https://github.com/healops/demo-project";
 const MAX_ITERATIONS = 3;
@@ -56,6 +57,20 @@ const Index = () => {
   const cleanupRef = useRef<(() => void) | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
   const [endTime, setEndTime] = useState<number>(0);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === "#features") {
+      setShowLanding(true);
+      setTimeout(() => {
+        const element = document.getElementById("features");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [location.hash]);
 
   // Demo mode — hardcoded simulation
   const startDemo = useCallback(() => {
@@ -106,14 +121,15 @@ const Index = () => {
         try {
           await createBranch(gitConfig);
           toast.success(`Created branch: ${branch}`);
-        } catch (e: any) {
-          if (e.status === 422) {
+        } catch (e: unknown) {
+          const err = e as { status?: number; message?: string };
+          if (err.status === 422) {
             toast.info(`Branch ${branch} already exists, using it.`);
           } else if (e.status === 403 || e.status === 404) {
             toast.error("Access Denied: You cannot create branches on this repo. Please fork it first!");
           } else {
             console.error(e);
-            toast.error(`GitHub Error: ${e.message}`);
+            toast.error(`GitHub Error: ${err.message}`);
           }
         }
       } catch (e) {
@@ -133,11 +149,11 @@ const Index = () => {
         if (data?.error) throw new Error(data.error);
         analysis = data;
       } catch (e) {
-        {/* console.warn("Backend unavailable, using client-side simulation", e); */}
+        // console.warn("Backend unavailable, using client-side simulation", e);
         const { generateMockAnalysis } = await import("@/lib/dynamicSimulation");
         analysis = generateMockAnalysis(url);
         if (!url.includes("demo-project")) {
-         {/* toast.info("Backend unavailable: Running simulation mode"); */}
+         // toast.info("Backend unavailable: Running simulation mode");
         }
       }
       setAnalysisData(analysis);
@@ -186,7 +202,7 @@ const Index = () => {
       fresh.initialFailures = analysis.fixes.length;
       fresh.fixes = analysis.fixes.map(f => ({
         file: f.file,
-        bugType: (validBugTypes.includes(f.bugType) ? f.bugType : "LOGIC") as any,
+        bugType: (validBugTypes.includes(f.bugType) ? f.bugType : "LOGIC") as DetailedFix["bugType"],
         line: f.line,
         commitMessage: f.commitMessage,
         status: "pending" as const,
@@ -211,8 +227,9 @@ const Index = () => {
       });
 
       toast.success("Repository analyzed! Running healing simulation...");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to analyze repository");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      toast.error(errorMessage || "Failed to analyze repository");
       const fresh = initialState();
       setState(fresh);
     } finally {
