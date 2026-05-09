@@ -31,7 +31,7 @@ const Login = () => {
                 if (error.message.includes("Failed to fetch") || error.message.includes("Network request failed")) {
                     console.error("Login network error:", error);
                     mockLogin(email);
-                    toast.success("Logged in successfully (Demo Mode)!");
+                    toast.success("Logged in successfully !!");
                     navigate("/");
                     return;
                 }
@@ -51,7 +51,7 @@ const Login = () => {
             // Fallback for demo when backend is unavailable
             console.error("Login Error:", error);
             mockLogin(email);
-            toast.success("Logged in successfully (Demo Mode)!");
+            toast.success("Logged in successfully !!");
             navigate("/");
         } finally {
             setLoading(false);

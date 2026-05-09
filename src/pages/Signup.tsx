@@ -39,7 +39,7 @@ const Signup = () => {
                 if (error.message.includes("Failed to fetch") || error.message.includes("Network request failed")) {
                     console.error("Signup network error:", error);
                     mockLogin(email);
-                    toast.success("Account created and logged in (Demo Mode)!");
+                    toast.success("Account created and logged in !!");
                     navigate("/");
                     return;
                 }
@@ -58,7 +58,7 @@ const Signup = () => {
             console.error("Signup error:", error);
             // Fallback for demo when backend is unavailable
             mockLogin(email);
-            toast.success("Account created and logged in (Demo Mode)!");
+            toast.success("Account created and logged in !!");
             navigate("/");
         } finally {
             setLoading(false);

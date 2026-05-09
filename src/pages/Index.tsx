@@ -72,7 +72,6 @@ const Index = () => {
     }
   }, [location.hash]);
 
-  // Demo mode — hardcoded simulation
   const startDemo = useCallback(() => {
     if (cleanupRef.current) cleanupRef.current();
     setStartTime(Date.now());
