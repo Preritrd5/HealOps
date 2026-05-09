@@ -95,7 +95,6 @@ const Index = () => {
     });
   }, []);
 
-  // Real repo analysis
   const startLiveAnalysis = useCallback(async (url: string, teamName: string, leaderName: string, token?: string) => {
     if (cleanupRef.current) cleanupRef.current();
     setStartTime(Date.now());
